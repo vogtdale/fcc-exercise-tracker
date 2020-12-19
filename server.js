@@ -61,7 +61,7 @@ app.post("/api/exercise/add", (req, res) => {
       res.json({ error: "Unknown userId" });
     } else {
       const username = data.username;
-      const createNewExercice = new Exercise({
+      let createNewExercice = new Exercise({
         userId,
         description,
         duration,
@@ -69,10 +69,10 @@ app.post("/api/exercise/add", (req, res) => {
       });
       createNewExercice.save((err, data) => {
         res.json({
-          _id: userId,
           username,
           description,
           duration: +duration,
+          _id: userId,
           date: new Date(date).toString(),
         });
       });
@@ -96,42 +96,44 @@ app.get("/api/exercise/log", (req, res) => {
         .select(["id", "description", "duration", "date"])
         .limit(+limit)
         .exec((err, data) => {
-          let newData = data.map(exercise => {
-            let dateFormated = new Date(exercise.date).toString()
-            return {id: exercise.id, description: exercise.description, duration: exercise.duration, date: dateFormated}
-
-          })
+          let newData = data.map((exercise) => {
+            let dateFormated = new Date(exercise.date).toString();
+            return {
+              id: exercise.id,
+              description: exercise.description,
+              duration: exercise.duration,
+              date: dateFormated,
+            };
+          });
           if (!data) {
             res.json({
-              "userId": userId,
-              "username": username,
-              "count": 0,
-              "log": []
-
-            })
-          }else {
+              userId: userId,
+              username: username,
+              count: 0,
+              log: [],
+            });
+          } else {
             res.json({
-              "userId": userId,
-              "username": username,
-              "count": data.length,
-              "log": newData
-
-            })
+              userId: userId,
+              username: username,
+              count: data.length,
+              log: newData,
+            });
           }
         });
     }
   });
 });
 
-app.get("/api/exercise/users", (req,res)=> {
+app.get("/api/exercise/users", (req, res) => {
   Person.find({}, (err, data) => {
-    if(!data) {
-      res.send("No users")
-    }else {
-      res.json(data)
+    if (!data) {
+      res.send("No users");
+    } else {
+      res.json(data);
     }
-  })
-})
+  });
+});
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log("Your app is listening on port " + listener.address().port);
